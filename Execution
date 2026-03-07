@@ -1,0 +1,29 @@
+Navigate to the Project Directory
+
+        cd /Users/nithineleti/Downloads/PROJECTS/Deep_Research_Through_an_AI_Agent_Using_OpenAI
+
+Create a Virtual Environment
+
+        /Library/Frameworks/Python.framework/Versions/3.13/bin/python3 -m venv venv
+
+Activate the Virtual Environment
+
+        source venv/bin/activate
+
+ Install Dependencies
+
+        pip install streamlit crewai langchain-openai python-dotenv requests reportlab pypdf
+
+Set Up Environment Variables
+
+        OPENAI_API_KEY=your_openai_api_key
+        FIRECRAWL_KEY=your_firecrawl_api_key
+
+Run the Application
+
+        streamlit run deep_research_app/main.py
+
+Access the App
+
+        Local URL: http://localhost:8501
+        Network URL: http://192.0.0.2:8501
