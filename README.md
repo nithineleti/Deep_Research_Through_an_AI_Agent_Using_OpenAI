@@ -1,444 +1,202 @@
-# 🤖 Deep Research Assistant with CrewAI
+# Deep Research Through an AI Agent Using OpenAI
 
-## 📖 Project Overview
+This project is a Python research assistant that uses CrewAI agents, OpenAI models, and Firecrawl search to generate a research report and export it as PDF.
 
-This is a **Python-based AI research assistant** built with Streamlit and CrewAI that automates deep research workflows. It accepts a user query, executes a multi-agent research process, and generates a professional PDF report with findings.
+The repository currently includes:
 
-### 🎯 Problems Solved
-- ✅ Reduces manual effort in collecting, summarizing, and presenting research
-- ✅ Packages findings into readable, professional report format
-- ✅ Enables rapid topic synthesis with configurable research depth
-- ✅ Demonstrates enterprise-grade multi-agent LLM orchestration
+- A Streamlit UI for entering a research topic and downloading the generated PDF
+- A FastAPI endpoint for triggering research by query string
+- A CrewAI-based multi-agent workflow
+- Markdown cleanup utilities
+- PDF report generation with source links
+- Basic tests for controller and agent setup
 
-### 👥 Target Users
-- 📊 Analysts and Researchers needing rapid topic synthesis
-- 🎓 Students conducting comprehensive research
-- 👨‍💼 Business professionals doing competitive analysis
-- 🛠️ Developers learning multi-agent LLM patterns
+## How It Works
 
----
+1. The user submits a research query from the Streamlit app or the FastAPI endpoint.
+2. The service builds several search variations from that query based on `breadth`.
+3. Firecrawl search is used to collect web results.
+4. If Firecrawl does not return usable data, the app falls back to an OpenAI model response.
+5. CrewAI runs a three-agent workflow:
+   - Research Agent
+   - Summarization Agent
+   - Presentation Agent
+6. The final output is cleaned for display.
+7. A PDF report is generated and returned to the UI.
 
-## 📸 Application Screenshots
+## Project Structure
 
-### Streamlit Frontend
-![Frontend Screenshot 1](images/Screenshot%202026-02-28%20153744.png)
-![Frontend Screenshot 2](images/Screenshot%202026-02-28%20153752.png)
-![Frontend Screenshot 3](images/Screenshot%202026-02-28%20153757.png)
-![Frontend Screenshot 4](images/Screenshot%202026-02-28%20153802.png)
-
----
-
-## ✨ Key Features
-
-- 🖥️ **Interactive Streamlit UI** - Query input with breadth & depth sliders for research control
-- 🤖 **Multi-Agent Workflow** - Specialized CrewAI agents (Research, Summarization, Presentation)
-- 🌐 **Web Search Integration** - Firecrawl API with intelligent LLM fallback
-- 📝 **Markdown Normalization** - Cleaned, formatted output pipeline
-- 📄 **PDF Generation** - Professional downloadable reports with inline preview
-- 🔐 **Environment-Based Secrets** - Secure API key management via `.env`
-- ⚡ **Fast & Reliable** - API validation and error handling built-in
-
----
-
-## 🏗️ System Architecture
-
-### High-Level Design
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Streamlit UI (main.py)                   │
-│         User Query Input + Breadth/Depth Sliders            │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│          Research Controller (Orchestration Layer)           │
-│           Manages workflow execution and coordination        │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│              CrewAI Multi-Agent System                       │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │  Research    │→ │ Summarization│→ │ Presentation │      │
-│  │  Agent       │  │  Agent       │  │  Agent       │      │
-│  └──────────────┘  └──────────────┘  └──────────────┘      │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│              Firecrawl Search API (Web Search)               │
-│         + OpenAI Fallback (LLM-Generated Insights)          │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│         Markdown Cleaner (Output Normalization)              │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│          PDF Generator (ReportLab)                           │
-│       Professional Report Creation & Formatting             │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│              User Output                                     │
-│   PDF Download + Browser Preview + Markdown Display        │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Project Structure
-```
+```text
 deep_research_app/
-├── main.py                              # 🖥️  Streamlit UI & Interactions
+├── api/
+│   └── server.py
+├── config/
+│   └── agents.yaml
 ├── controllers/
-│   └── research_controller.py            # 🎮 Orchestration Logic
-├── services/
-│   └── agents_service.py                 # 🤖 CrewAI Agents & Tools
+│   └── research_controller.py
 ├── models/
-│   └── pdf_generator.py                  # 📄 PDF Report Generation
+│   ├── database.py
+│   └── pdf_generator.py
+├── services/
+│   └── agents_service.py
 ├── utils/
-│   └── markdown_cleaner.py               # ✏️  Output Formatting
-└── .env                                  # 🔑 API Keys Configuration
+│   ├── agent_loader.py
+│   ├── logger.py
+│   ├── markdown_cleaner.py
+│   ├── monitoring.py
+│   └── validation.py
+├── .env_example
+└── main.py
+tests/
+├── conftest.py
+├── test_agents.py
+└── test_controller.py
 ```
 
-### Data Flow Pipeline
-1. User submits query + parameters in Streamlit UI
-2. Research Controller initializes CrewAI Crew
-3. **Research Agent** → Calls Firecrawl Search Tool
-4. If search fails → **LLM Fallback** generates insights via OpenAI
-5. **Summarization Agent** → Analyzes & synthesizes information
-6. **Presentation Agent** → Formats findings into structured report
-7. **Markdown Cleaner** → Normalizes and cleans output
-8. **PDF Generator** → Builds professional report file
-9. **Streamlit UI** → Returns preview + download link
+## Main Components
 
----
+### Streamlit App
 
-## 🛠️ Tech Stack
+`deep_research_app/main.py` provides a small UI with:
 
-| Component | Technology |
-|-----------|-----------|
-| **Frontend** | Streamlit |
-| **Agent Orchestration** | CrewAI v1.9.3+ |
-| **LLM & Chat** | OpenAI API (ChatOpenAI via LangChain) |
-| **Web Search** | Firecrawl API |
-| **PDF Generation** | ReportLab |
-| **Config Management** | python-dotenv |
-| **Python Version** | 3.10, 3.11, 3.12, 3.13 |
-| **OS Support** | macOS, Linux, Windows |
+- Research query input
+- Breadth slider
+- Depth slider
+- Temperature slider in the UI
+- Report preview
+- PDF download
+- Inline PDF preview
 
----
+Note: the current controller does not consume the UI temperature value.
 
-## 🚀 Quick Start Guide
+### Research Controller
 
-### Prerequisites
-- Python 3.10 or higher
-- OpenAI API Key ([Get it here](https://platform.openai.com/api-keys))
-- Firecrawl API Key ([Get it here](https://www.firecrawl.dev))
-- pip or conda package manager
+`deep_research_app/controllers/research_controller.py` orchestrates the flow:
 
-### Installation (macOS/Linux)
+- Creates the crew and tools
+- Runs the CrewAI workflow
+- Cleans markdown output
+- Builds the PDF
+- Returns text output, PDF bytes, and a base64 PDF string
 
-#### Step 1: Clone & Navigate
-```bash
-cd /path/to/Deep_Research_Through_an_AI_Agent_Using_OpenAI
+### Agent Service
+
+`deep_research_app/services/agents_service.py`:
+
+- Loads environment variables from `deep_research_app/.env`
+- Validates `OPENAI_API_KEY`
+- Defines the Firecrawl tool
+- Falls back to `gpt-4o-mini` if Firecrawl search is not usable
+- Runs parallel search queries with `ThreadPoolExecutor`
+- Creates the CrewAI agents and tasks
+
+### FastAPI Endpoint
+
+`deep_research_app/api/server.py` exposes:
+
+```http
+GET /research?query=your-topic
 ```
 
-#### Step 2: Create Virtual Environment
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
+This currently uses fixed values of `breadth=2` and `depth=2`.
 
-#### Step 3: Install Dependencies
+## Requirements
+
+- Python 3.10+
+- OpenAI API key
+- Firecrawl API key
+
+Install dependencies with:
+
 ```bash
 pip install -r requirements.txt
 ```
 
-#### Step 4: Configure Environment Variables
-Create `deep_research_app/.env`:
-```env
-OPENAI_API_KEY=sk-your_actual_key_here
-FIRECRAWL_KEY=fc-your_actual_key_here
-```
-
-#### Step 5: Run the Application
-```bash
-streamlit run deep_research_app/main.py
-```
-
-#### Step 6: Access the App
-```
-Local URL: http://localhost:8501
-Network URL: http://<your-ip>:8501
-```
-
-### Installation (Windows)
-
-```bash
-# Create virtual environment
-python -m venv venv
-venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure .env file
-# Create: deep_research_app\.env
-
-# Run application
-streamlit run deep_research_app/main.py
-```
-
----
-
-## 💡 How to Use the Application
-
-### 1. Enter Your Research Query
-Type any research topic in the text input field:
-- "Artificial Intelligence in Finance"
-- "Climate Change Mitigation Strategies"
-- "Blockchain Technology Applications"
-
-### 2. Configure Research Parameters
-- **Search Breadth** (1-10): Number of parallel search queries
-- **Search Depth** (1-5): Recursion levels for deeper research
-
-### 3. Click "Run Deep Research"
-The multi-agent workflow will:
-- ✅ Search the web for relevant information
-- ✅ Analyze and synthesize findings
-- ✅ Generate structured report
-- ✅ Create professional PDF
-
-### 4. Review & Download
-- 📖 Read cleaned report in preview
-- 📥 Download PDF report
-- 👁️ View PDF inline in browser
-
----
-
-## 🔐 Environment Configuration
-
-### Required Environment Variables
+## Environment Setup
 
 Create `deep_research_app/.env`:
 
 ```env
-# OpenAI API Key - Required for LLM operations
-OPENAI_API_KEY=sk-proj-YOUR_ACTUAL_KEY_HERE
-
-# Firecrawl API Key - Required for web search
-FIRECRAWL_KEY=fc-YOUR_ACTUAL_KEY_HERE
+OPENAI_API_KEY=your_openai_api_key
+FIRECRAWL_KEY=your_firecrawl_api_key
 ```
 
-### Getting API Keys
+The app reads environment values from `deep_research_app/.env`.
 
-**OpenAI API Key:**
-1. Visit https://platform.openai.com/api-keys
-2. Click "Create new secret key"
-3. Copy and paste into `.env`
+## Run the Streamlit App
 
-**Firecrawl API Key:**
-1. Visit https://www.firecrawl.dev
-2. Sign up for account
-3. Generate API key from dashboard
-4. Copy and paste into `.env`
+From the repository root:
 
-### Security Best Practices
-- ✅ Never commit `.env` file to version control
-- ✅ Add `.env` to `.gitignore`
-- ✅ Use environment variables for production
-- ✅ Rotate API keys periodically
-- ✅ Monitor API usage and costs
-
----
-
-## 🧪 Testing & Validation
-
-### Test the Installation
 ```bash
-# Verify Python version
-python --version
-
-# Verify all imports work
-python -c "import streamlit; import crewai; import langchain_openai; print('✅ All imports successful')"
-
-# Check API configuration
-python -c "from dotenv import load_dotenv; import os; load_dotenv('deep_research_app/.env'); print('OpenAI Key Set:', bool(os.getenv('OPENAI_API_KEY')))"
+streamlit run deep_research_app/main.py
 ```
 
-### Manual Testing Workflow
-1. Start the app: `streamlit run deep_research_app/main.py`
-2. Try a simple query: "What is machine learning?"
-3. Use breadth=2, depth=1 for quick test
-4. Verify PDF generates and downloads
-5. Check report content for accuracy
+Then open the local Streamlit URL shown in the terminal, usually:
 
----
-
-## 📊 Example Queries
-
-### Financial Analysis
-- "Impact of AI on stock market trading"
-- "Cryptocurrency market trends 2026"
-- "Digital banking transformation"
-
-### Technology Research
-- "Quantum computing breakthroughs"
-- "Edge computing vs cloud computing"
-- "5G network implementations"
-
-### Business Strategy
-- "Remote work future trends"
-- "Supply chain optimization techniques"
-- "Customer experience innovations"
-
----
-
-## 🐛 Troubleshooting
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| `ModuleNotFoundError` | Missing dependencies | Run `pip install -r requirements.txt` |
-| `API Key validation error` | Invalid/missing keys | Check `.env` file and API keys |
-| `Streamlit not found` | Wrong virtual environment | Verify venv is activated |
-| `Port 8501 already in use` | Port conflict | Streamlit auto-uses 8502, 8503, etc. |
-| `Firecrawl search fails` | API key invalid/quota exceeded | Verify Firecrawl key validity |
-| `OpenAI API error` | API key issue or quota exceeded | Check OpenAI account and credits |
-| `PDF generation fails` | ReportLab issue | Reinstall: `pip install --upgrade reportlab` |
-
----
-
-## 🔧 Advanced Configuration
-
-### Customizing Agent Behavior
-Edit `deep_research_app/services/agents_service.py`:
-```python
-# Adjust LLM temperature (0.0-1.0)
-llm = ChatOpenAI(
-    openai_api_key=OPENAI_API_KEY,
-    temperature=0.3  # Change for more/less creativity
-)
-
-# Modify agent prompts
-researcher = Agent(
-    goal="Your custom research goal here",
-    backstory="Your custom backstory here"
-)
+```text
+http://localhost:8501
 ```
 
-### Adjusting Crew Settings
-```python
-crew = Crew(
-    agents=[...],
-    tasks=[...],
-    max_steps=100,        # Max iterations
-    max_time=3600,        # Max time in seconds
-    verbose=True          # Enable detailed logging
-)
+## Run the FastAPI App
+
+From the repository root:
+
+```bash
+uvicorn deep_research_app.api.server:app --reload
 ```
 
----
+Then open:
 
-## 📈 Performance Considerations
-
-### Typical Execution Times
-- Small query (breadth=1, depth=1): 2-5 minutes
-- Medium query (breadth=3, depth=2): 5-15 minutes
-- Large query (breadth=5, depth=3): 15-30+ minutes
-
-### Resource Requirements
-- **CPU**: 2+ cores recommended
-- **Memory**: 4GB+ RAM
-- **Network**: Stable internet connection for API calls
-- **Storage**: ~50MB for dependencies + 10MB per report
-
-### Cost Estimates (as of March 2026)
-- OpenAI API: ~$0.01-0.05 per query
-- Firecrawl API: Variable based on search volume
-- Total per research: ~$0.05-0.20 (typical)
-
----
-
-## 🚀 Deployment Options
-
-### Local Development
-✅ Current setup - best for testing and learning
-
-### Docker Deployment (Recommended for Production)
-```dockerfile
-FROM python:3.13-slim
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY deep_research_app ./deep_research_app
-ENV OPENAI_API_KEY=${OPENAI_API_KEY}
-ENV FIRECRAWL_KEY=${FIRECRAWL_KEY}
-
-EXPOSE 8501
-CMD ["streamlit", "run", "deep_research_app/main.py"]
+```text
+http://127.0.0.1:8000/research?query=Artificial%20Intelligence
 ```
 
-### Cloud Platforms
-- **Streamlit Cloud**: Free hosting for Streamlit apps
-- **Heroku**: Easy Python app deployment
-- **AWS/GCP/Azure**: Full infrastructure control
+## Running Tests
 
----
+Run:
 
-## 🤝 Contributing
+```bash
+pytest
+```
 
-### How to Contribute
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
+Current tests are minimal and depend on the runtime setup of the application. In practice, successful execution may still require valid API keys because the test suite does not fully mock the external services.
 
-### Areas for Improvement
-- 🧪 Add comprehensive test suite
-- 📚 Add more agent types (Financial Analyst, Legal Reviewer, etc.)
-- 💾 Implement database for report history
-- 🔐 Add user authentication & multi-tenancy
-- ⚡ Add async/parallel processing
-- 🐳 Add Docker configuration
-- 📊 Add analytics dashboard
+## Screenshots
 
----
+The repository includes Streamlit screenshots in [`images/`](/Users/nithineleti/Downloads/PROJECTS/Deep_Research_Through_an_AI_Agent_Using_OpenAI/images).
 
-## 📝 License
+## Current Limitations
 
-This project is part of the AI-Financial-Analyst-Assistant-Application repository.
+This README reflects the code as it exists today. A few things are present in the repository but are only partially integrated:
 
----
+- `depth` is passed through the flow but is not meaningfully used in agent behavior
+- The Streamlit temperature slider is not used by the backend
+- `utils/validation.py` is defined but not applied to incoming queries
+- `models/database.py` exists, but research history is not written during the main workflow
+- `config/agents.yaml` is not used to build the active CrewAI agents
+- Tests do not isolate all external dependencies
 
-## 👨‍💻 Author
+## Tech Stack
 
-Built as a comprehensive AI orchestration project demonstrating:
-- ✅ Multi-agent LLM workflow design (CrewAI)
-- ✅ Third-party API integration & fallback patterns
-- ✅ Streamlit application development
-- ✅ Document generation & post-processing
-- ✅ Production-ready error handling
+- Python
+- Streamlit
+- FastAPI
+- CrewAI
+- LangChain OpenAI
+- OpenAI API
+- Firecrawl API
+- ReportLab
+- pytest
 
-**Repository**: https://github.com/TejeswaniMajji/AI-Financial-Analyst-Assistant-Application
+## Updating the README on GitHub
 
----
+I updated the local [`README.md`](/Users/nithineleti/Downloads/PROJECTS/Deep_Research_Through_an_AI_Agent_Using_OpenAI/README.md). To publish it to GitHub, run these commands from the repository root:
 
-## 📞 Support & Questions
+```bash
+git status
+git add README.md
+git commit -m "Update README to match current project structure"
+git push origin <your-branch>
+```
 
-- 📧 Email: Check repository for contact info
-- 🐛 Issues: Report bugs on GitHub Issues
-- 💬 Discussions: Join repository discussions
-- 📖 Docs: Check documentation in repository
-
----
-
-## ⭐ Star This Project!
-
-If you found this project helpful, please give it a ⭐ on GitHub!
-
----
-
-**Last Updated**: March 7, 2026
-**Version**: 1.0.0
-**Status**: ✅ Production Ready
+If you are working directly on `main`, replace `<your-branch>` with `main`.
