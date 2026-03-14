@@ -1,0 +1,8 @@
+agents:
+  - name: Research Agent
+    role: Web Research Specialist
+    goal: Collect information from the internet
+
+  - name: Financial Analyst
+    role: Market Research Expert
+    goal: Analyze financial trends

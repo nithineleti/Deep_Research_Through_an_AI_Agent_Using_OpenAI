@@ -5,25 +5,34 @@ import base64
 
 extracted_links = []
 
-# Task 7: Implements run_deep_research function
+def run_research(query, breadth=1, depth=1):
 
-def run_deep_research(query, breadth, depth):
-    crew, researcher_tool, firecrawl_tool = setup_agents_and_tasks(query, breadth, depth)
+    crew, researcher_tool, firecrawl_tool = setup_agents_and_tasks(
+        query, breadth, depth
+    )
+
     try:
         result = crew.kickoff()
     except Exception as exc:
         error_text = str(exc)
+
         if "invalid_api_key" in error_text or "Incorrect API key" in error_text:
-            raise RuntimeError("OpenAI API key is invalid. Update OPENAI_API_KEY in deep_research_app/.env with a valid key.") from exc
+            raise RuntimeError(
+                "OpenAI API key is invalid. Update OPENAI_API_KEY in .env"
+            ) from exc
+
         raise
-    raw_output = result.output if hasattr(result, 'output') else str(result)
+
+    raw_output = result.output if hasattr(result, "output") else str(result)
+
     cleaned_output = clean_markdown(raw_output)
 
     summary_text = f"Summary for research topic: {query}"
+
     pdf_path = create_pdf(summary_text, cleaned_output, extracted_links)
 
     with open(pdf_path, "rb") as f:
         pdf_data = f.read()
-        base64_pdf = base64.b64encode(pdf_data).decode('utf-8')
+        base64_pdf = base64.b64encode(pdf_data).decode("utf-8")
 
     return cleaned_output, pdf_data, base64_pdf
